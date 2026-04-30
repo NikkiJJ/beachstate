@@ -2,15 +2,20 @@ import React, { useEffect, useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
 
 type BathingSite = {
-  id: number;
+  id: string;
   site_name: string;
   region: string;
   description: string | null;
-  latitude: string | null;
-  longitude: string | null;
+  latitude: number | null;
+  longitude: number | null;
   location_label: string;
-  created_at: string;
-  updated_at: string;
+  quality_classification: string | null;
+  quality_classification_uri: string | null;
+  official_uri: string | null;
+  eubwid_notation: string;
+  heavy_rain_affected: boolean | null;
+  created_at: string | null;
+  updated_at: string | null;
 };
 
 function App() {
@@ -75,6 +80,16 @@ function App() {
             <li key={site.id} style={{ border: "1px solid #ddd", borderRadius: 8, padding: "0.75rem" }}>
               <h2 style={{ margin: "0 0 0.35rem" }}>{site.site_name}</h2>
               <p style={{ margin: "0 0 0.35rem", color: "#555" }}>{site.region}</p>
+              {site.quality_classification && (
+                <p style={{ margin: "0 0 0.35rem" }}>
+                  <strong>Water quality:</strong> {site.quality_classification}
+                </p>
+              )}
+              {site.eubwid_notation && (
+                <p style={{ margin: "0 0 0.35rem", color: "#555" }}>
+                  <strong>EA code:</strong> {site.eubwid_notation}
+                </p>
+              )}
               {site.description && <p style={{ margin: 0 }}>{site.description}</p>}
             </li>
           ))}

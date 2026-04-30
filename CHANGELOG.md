@@ -13,6 +13,7 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 - Added TypeScript configuration for frontend type safety.
 - Added npm scripts for frontend development, build, and type checking.
 - Added idempotent seed data for sample BathingSite records.
+- Added an Environment Agency Bathing Water API client with cached linked-data ingestion.
 
 ### Changed
 - Replaced placeholder React frontend with a typed React + TypeScript bathing-sites interface for create, list, and search.
@@ -21,6 +22,8 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 - Updated Vite layout include to use the application.tsx entrypoint explicitly.
 - Updated controller tests to use valid route helpers for current routes.
 - Simplified the Bathing Sites frontend to a read-only seeded-data experience (list + search, no create form).
+- Switched the Bathing Sites index endpoint and frontend listing to live official Environment Agency bathing water and compliance classification data.
+- Updated browser refresh behavior so Bathing Sites now reload from the official Environment Agency API rather than local seeded records.
 
 ### Removed
 - Removed temporary Review, Favourite, and Report model placeholders.

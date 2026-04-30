@@ -2,10 +2,11 @@ class BathingSitesController < ApplicationController
   before_action :set_bathing_site, only: [:show, :update]
 
   def index
-    sites = BathingSite.order(created_at: :desc)
-    sites = sites.search_text(params[:q]) if params[:q].present?
-
-    render json: sites.map { |site| bathing_site_json(site) }
+    sites = EnvironmentAgency::BathingWaterClient.new.list_sites(query: params[:q])
+    render json: sites
+  rescue StandardError => e
+    Rails.logger.error("Failed to load Environment Agency bathing sites: #{e.class}: #{e.message}")
+    render json: { errors: ["Unable to load official bathing water data right now."] }, status: :service_unavailable
   end
 
   def show
