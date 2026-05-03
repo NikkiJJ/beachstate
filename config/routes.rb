@@ -1,5 +1,8 @@
 Rails.application.routes.draw do
-  resources :bathing_sites, only: [:index, :show, :create, :update], defaults: { format: :json }
+  resources :bathing_sites, only: [:index, :show, :create, :update], defaults: { format: :json } do
+    get :weather, on: :collection
+    get :wiki, on: :collection
+  end
 
   root "home#index"
   get "/results", to: "results#index"

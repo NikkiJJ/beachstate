@@ -1,6 +1,7 @@
 require "json"
 require "net/http"
 require "uri"
+require "time"
 
 module EnvironmentAgency
   class BathingWaterClient
@@ -29,6 +30,7 @@ module EnvironmentAgency
     def fetch_all_sites
       endpoint = URI(BASE_URL)
       endpoint.query = URI.encode_www_form(_page: 0, _pageSize: PAGE_SIZE)
+      fetched_at = Time.current.iso8601
 
       sites = []
       visited = 0
@@ -36,7 +38,7 @@ module EnvironmentAgency
       while endpoint.present? && visited < 20
         payload = get_json(endpoint)
         items = payload.dig("result", "items") || []
-        sites.concat(items.filter_map { |item| map_item(item) })
+        sites.concat(items.filter_map { |item| map_item(item, fetched_at: fetched_at) })
 
         next_url = payload.dig("result", "next")
         endpoint = next_url.present? ? URI(next_url) : nil
@@ -64,7 +66,7 @@ module EnvironmentAgency
       JSON.parse(response.body)
     end
 
-    def map_item(item)
+    def map_item(item, fetched_at:)
       code = item["eubwidNotation"].presence || item["_about"].to_s.split("/").last
       return nil if code.blank?
 
@@ -75,6 +77,11 @@ module EnvironmentAgency
 
       quality_name = value_for(item.dig("latestComplianceAssessment", "complianceClassification", "name"))
       quality_href = item.dig("latestComplianceAssessment", "complianceClassification", "_about")
+      risk_level = value_for(item.dig("latestRiskPrediction", "riskLevel", "name"))
+      risk_expires_at = value_for(item.dig("latestRiskPrediction", "expiresAt"))
+      latest_sample_at = extract_latest_sample_at(item)
+      latest_risk_prediction_at = extract_latest_risk_prediction_at(item)
+      source_updated_at = latest_sample_at || latest_risk_prediction_at
 
       lat = item.dig("samplingPoint", "lat")
       long = item.dig("samplingPoint", "long")
@@ -83,12 +90,20 @@ module EnvironmentAgency
         id: code,
         site_name: site_name,
         region: region,
+        country: value_for(item.dig("country", "name")),
         description: description_for(item),
         latitude: lat,
         longitude: long,
         location_label: [site_name, region].compact_blank.join(", "),
         quality_classification: quality_name,
         quality_classification_uri: quality_href,
+        latest_sample_at: latest_sample_at,
+        latest_risk_prediction_at: latest_risk_prediction_at,
+        source_updated_at: source_updated_at,
+        risk_level: risk_level,
+        risk_prediction_expires_at: risk_expires_at,
+        year_designated: item["yearDesignated"],
+        cache_refreshed_at: fetched_at,
         official_uri: item["_about"],
         eubwid_notation: code,
         heavy_rain_affected: item["waterQualityImpactedByHeavyRain"],
@@ -126,6 +141,36 @@ module EnvironmentAgency
       return value["_value"] if value.is_a?(Hash)
 
       value
+    end
+
+    def extract_latest_sample_at(item)
+      latest_sample_uri = item["latestSampleAssessment"].to_s
+      return nil if latest_sample_uri.blank?
+
+      date = latest_sample_uri[/\/date\/(\d{8})/, 1]
+      time = latest_sample_uri[/\/time\/(\d{6})/, 1]
+
+      if date.present? && time.present?
+        return Time.zone.strptime("#{date}#{time}", "%Y%m%d%H%M%S").iso8601
+      end
+
+      return Time.zone.strptime(date, "%Y%m%d").iso8601 if date.present?
+
+      nil
+    rescue ArgumentError
+      nil
+    end
+
+    def extract_latest_risk_prediction_at(item)
+      risk_uri = item.dig("latestRiskPrediction", "_about").to_s
+      return nil if risk_uri.blank?
+
+      datetime = risk_uri[/\/date\/(\d{8}-\d{6})/, 1]
+      return nil if datetime.blank?
+
+      Time.zone.strptime(datetime, "%Y%m%d-%H%M%S").iso8601
+    rescue ArgumentError
+      nil
     end
   end
 end

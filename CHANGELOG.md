@@ -14,6 +14,9 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 - Added npm scripts for frontend development, build, and type checking.
 - Added idempotent seed data for sample BathingSite records.
 - Added an Environment Agency Bathing Water API client with cached linked-data ingestion.
+- Added an internal repository to-do checklist for information-only product safeguards and legal-risk controls.
+- Added Stormglass marine integration with a dedicated endpoint that returns timestamped weather, water temperature, wave height, and upcoming tide fields with explicit unavailable states.
+- Added `.env.example` entry for Stormglass API key local setup.
 
 ### Changed
 - Replaced placeholder React frontend with a typed React + TypeScript bathing-sites interface for create, list, and search.
@@ -24,6 +27,9 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 - Simplified the Bathing Sites frontend to a read-only seeded-data experience (list + search, no create form).
 - Switched the Bathing Sites index endpoint and frontend listing to live official Environment Agency bathing water and compliance classification data.
 - Updated browser refresh behavior so Bathing Sites now reload from the official Environment Agency API rather than local seeded records.
+- Enriched Environment Agency ingest to include source update timestamps and risk metadata, and surfaced latest update timing in the frontend list.
+- Updated bathing site cards with on-demand loading and display of timestamped Stormglass conditions data.
+- Updated weather card UI to show explicit unavailable reasons when provider data cannot be returned.
 
 ### Removed
 - Removed temporary Review, Favourite, and Report model placeholders.
