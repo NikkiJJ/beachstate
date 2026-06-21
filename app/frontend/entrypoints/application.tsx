@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
+import "./application.css";
 
 type BathingSite = {
   id: string;
@@ -68,6 +69,13 @@ function App() {
   const [wikiBySite, setWikiBySite] = useState<Record<string, SiteWiki>>({});
   const [wikiLoadingBySite, setWikiLoadingBySite] = useState<Record<string, boolean>>({});
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const searchQuery = params.get("search") || "";
+    setSearch(searchQuery);
+    void loadSites(searchQuery);
+  }, []);
+
   async function loadSites(query = "") {
     setLoading(true);
     setError(null);
@@ -92,31 +100,8 @@ function App() {
     }
   }
 
-  useEffect(() => {
-    void loadSites();
-  }, []);
-
-  const hasData = useMemo(() => sites.length > 0, [sites]);
-
-  const formatDateTime = (iso: string | null) => {
-    if (!iso) return null;
-
-    const date = new Date(iso);
-    if (Number.isNaN(date.getTime())) return null;
-
-    return date.toLocaleString("en-GB", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit"
-    });
-  };
-
   async function loadWeather(site: BathingSite) {
-    if (site.latitude == null || site.longitude == null) {
-      return;
-    }
+    if (site.latitude == null || site.longitude == null) return;
 
     setWeatherLoadingBySite((prev) => ({ ...prev, [site.id]: true }));
 
@@ -159,11 +144,26 @@ function App() {
     }
   }
 
+  const hasData = useMemo(() => sites.length > 0, [sites]);
+
+  const formatDateTime = (iso: string | null) => {
+    if (!iso) return null;
+    const date = new Date(iso);
+    if (Number.isNaN(date.getTime())) return null;
+
+    return date.toLocaleString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  };
+
   const metricDisplay = (metric: WeatherMetric, unit = "") => {
     if (metric.status !== "available" || metric.value == null || metric.value === "") {
       return "Unavailable";
     }
-
     return `${metric.value}${unit}`;
   };
 
@@ -179,9 +179,8 @@ function App() {
     if (highTime && lowTime) {
       if (highTime < lowTime) {
         return `The tide is coming in. Next high tide at ${formatDateTime(highMetric.value as string) ?? "unknown"}.`;
-      } else {
-        return `The tide is going out. Next low tide at ${formatDateTime(lowMetric.value as string) ?? "unknown"}.`;
       }
+      return `The tide is going out. Next low tide at ${formatDateTime(lowMetric.value as string) ?? "unknown"}.`;
     }
 
     if (highTime) {
@@ -193,7 +192,6 @@ function App() {
 
   const weatherUnavailableReason = (weather: SiteWeather) => {
     const metrics = weather.metrics;
-
     return (
       metrics.air_temperature_c.unavailable_reason ||
       metrics.wind_speed_m_s.unavailable_reason ||
@@ -206,39 +204,38 @@ function App() {
   };
 
   return (
-    <main style={{ maxWidth: 900, margin: "2rem auto", padding: "0 1rem", fontFamily: "sans-serif" }}>
-      <h1>Bathing Sites</h1>
-
-      <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem" }}>
+    <section className="w-full">
+      <div className="mb-4 flex flex-wrap items-center gap-2">
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by site or region"
-          style={{ flex: 1 }}
+          className="search-input"
+          style={{ maxWidth: 480 }}
         />
-        <button type="button" onClick={() => void loadSites(search)} disabled={loading}>
+        <button
+          type="button"
+          onClick={() => void loadSites(search)}
+          disabled={loading}
+          className="rounded-full bg-[#001629] px-5 py-3 text-white disabled:opacity-60"
+        >
           Search
         </button>
       </div>
 
-      {error && <p style={{ color: "crimson" }}>{error}</p>}
+      {error && <p style={{ color: "crimson", marginBottom: "1rem" }}>{error}</p>}
       {loading && <p>Loading...</p>}
       {!loading && !hasData && <p>No bathing sites found.</p>}
 
       {!loading && hasData && (
         <ul style={{ display: "grid", gap: "0.75rem", listStyle: "none", padding: 0 }}>
           {sites.map((site) => (
-            <li key={site.id} style={{ border: "1px solid #ddd", borderRadius: 8, padding: "0.75rem" }}>
+            <li key={site.id} style={{ border: "1px solid #ddd", borderRadius: 12, padding: "0.85rem", background: "#fff" }}>
               <h2 style={{ margin: "0 0 0.35rem" }}>{site.site_name}</h2>
               <p style={{ margin: "0 0 0.35rem", color: "#555" }}>{site.region}</p>
 
-              {/* Wikipedia info */}
               <div style={{ marginBottom: "0.5rem" }}>
-                <button
-                  type="button"
-                  onClick={() => void loadWiki(site)}
-                  disabled={Boolean(wikiLoadingBySite[site.id])}
-                >
+                <button type="button" onClick={() => void loadWiki(site)} disabled={Boolean(wikiLoadingBySite[site.id])}>
                   {wikiLoadingBySite[site.id] ? "Loading info..." : "Load location info"}
                 </button>
 
@@ -265,6 +262,7 @@ function App() {
                   </div>
                 )}
               </div>
+
               {site.source_updated_at && (
                 <p style={{ margin: "0 0 0.35rem", color: "#555" }}>
                   <strong>Latest update:</strong> {formatDateTime(site.source_updated_at) ?? "Unavailable"}
@@ -303,9 +301,7 @@ function App() {
                       <strong>Wave height:</strong> {metricDisplay(weatherBySite[site.id].metrics.wave_height_m, " m")}
                     </p>
                     {tideStatus(weatherBySite[site.id]) ? (
-                      <p style={{ margin: "0 0 0.35rem" }}>
-                        {tideStatus(weatherBySite[site.id])}
-                      </p>
+                      <p style={{ margin: "0 0 0.35rem" }}>{tideStatus(weatherBySite[site.id])}</p>
                     ) : (
                       <p style={{ margin: "0 0 0.35rem" }}>Tide information unavailable.</p>
                     )}
@@ -327,9 +323,11 @@ function App() {
           ))}
         </ul>
       )}
-    </main>
+    </section>
   );
 }
 
 const el = document.getElementById("app");
-if (el) createRoot(el).render(<App />);
+if (el) {
+  createRoot(el).render(<App />);
+}

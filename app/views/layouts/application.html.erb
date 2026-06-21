@@ -1,27 +1,86 @@
 <!DOCTYPE html>
-<html>
+<html class="light" lang="en">
   <head>
-    <title>Beachstate</title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Beach State | Real-time Coastal Insights</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="description" content="Beach State - Real-time bathing water safety information"/>
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
-
-    <%= stylesheet_link_tag "application" %>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    
+    <%= vite_stylesheet_tag "application.css" %>
     <%= vite_client_tag %>
     <%= vite_javascript_tag 'application.tsx' %>
-    <!--
-      If using a TypeScript entrypoint file:
-        vite_typescript_tag 'application'
 
-      If using a .jsx or .tsx entrypoint, add the extension:
-        vite_javascript_tag 'application.jsx'
+    <style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
 
-      Visit the guide for more information: https://vite-ruby.netlify.app/guide/rails
-    -->
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
 
+      body {
+        font-family: 'Manrope', sans-serif;
+      }
+    </style>
   </head>
 
-  <body>
-    <%= yield %>
+  <body class="m-0 min-h-screen flex flex-col overflow-x-hidden bg-[#f7f9fb] selection:bg-[#76f3ea] selection:text-[#006f69]">
+    <!-- Navigation Bar -->
+    <header id="site-header" class="fixed top-0 left-0 right-0 z-50 glass-effect shadow-sm shadow-slate-900/5 transition-all duration-300">
+      <nav class="mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-4">
+        <%= link_to root_path, class: "flex items-center gap-3 cursor-pointer active:scale-95 transition-transform" do %>
+          <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-[#001629] text-lg font-bold text-white">BS</div>
+          <span class="hidden text-2xl font-bold text-[#001629] sm:inline">Beach State</span>
+        <% end %>
+        <div class="hidden md:flex gap-8">
+          <!-- Navigation links can be added here -->
+        </div>
+      </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="<%= controller_name == 'home' && action_name == 'index' ? 'flex-grow pt-0' : 'flex-grow pt-24' %>">
+      <%= yield %>
+    </main>
+
+    <!-- Footer -->
+    <% home_page = controller_name == 'home' && action_name == 'index' %>
+    <% unless home_page %>
+    <footer class="mt-auto w-full bg-[#f2f4f6]">
+      <div class="mx-auto flex w-full max-w-7xl flex-col gap-6 px-6 py-12 text-left md:flex-row md:items-center md:justify-between">
+        <div class="flex items-center gap-4">
+          <span class="text-xl font-semibold text-[#001629]">Beach State</span>
+          <span class="hidden h-4 w-px bg-[#c3c7ce] md:block"></span>
+          <span class="text-sm text-[#42474d]">© 2024 Beach State. All rights reserved.</span>
+        </div>
+        <div class="flex items-center gap-8">
+          <a class="text-sm text-[#42474d] transition-colors hover:text-[#006a65]" href="#">Privacy Policy</a>
+          <a class="text-sm text-[#42474d] transition-colors hover:text-[#006a65]" href="#">Terms of Service</a>
+          <a class="text-sm text-[#42474d] transition-colors hover:text-[#006a65]" href="#">Contact</a>
+        </div>
+      </div>
+    </footer>
+    <% end %>
+
+    <script>
+      // Header scroll effect
+      window.addEventListener('scroll', () => {
+        const header = document.getElementById('site-header');
+        if (window.scrollY > 50) {
+          header.classList.add('shadow-md');
+        } else {
+          header.classList.remove('shadow-md');
+        }
+      });
+    </script>
   </body>
 </html>

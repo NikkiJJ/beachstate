@@ -1,1 +1,61 @@
-<div id="app"></div>
+<section class="relative flex h-[100svh] min-h-[700px] w-full items-center justify-center overflow-hidden bg-[#001629]" style="position: relative; width: 100vw; max-width: 100vw; margin-left: calc(50% - 50vw); margin-right: calc(50% - 50vw); height: 100svh; min-height: 700px; overflow: hidden;">
+  <!-- Background Image with Gradient Overlay -->
+  <div class="z-0" style="position: absolute; inset: 0; z-index: 0;">
+    <div class="hero-gradient z-10" style="position: absolute; inset: 0; z-index: 10;"></div>
+    <%= image_tag "beach hero.jpg", class: "block", alt: "Coastal hero background", style: "width: 100%; height: 100%; object-fit: cover; display: block;" %>
+  </div>
+
+  <!-- Hero Content -->
+  <div class="relative z-20 flex w-full max-w-4xl flex-col items-center px-6 text-center">
+    <!-- Logo Animation -->
+    <div class="mb-8 animate-fade-in transition-all hover:scale-105 duration-700">
+      <div class="flex h-32 w-32 items-center justify-center rounded-2xl bg-[#002b49] shadow-2xl drop-shadow-xl md:h-40 md:w-40">
+        <span class="text-white font-bold text-4xl md:text-5xl">BS</span>
+      </div>
+    </div>
+
+    <!-- Main Heading -->
+    <h1 class="mb-6 text-5xl font-bold tracking-tight text-white drop-shadow-md md:text-6xl" style="color: white;">
+      Beach State
+    </h1>
+
+    <!-- Search Bar Container -->
+    <div class="w-full max-w-xl">
+      <%= form_with url: results_path, method: :get, local: true, class: "search-container" do |f| %>
+        <div class="pointer-events-none absolute inset-y-0 left-6 flex items-center text-slate-500/80">
+          <span class="material-symbols-outlined text-[28px]">search</span>
+        </div>
+        <%= f.text_field :search, 
+            class: "search-input", 
+            placeholder: "Search for a beach...",
+            id: "search-input" %>
+      <% end %>
+    </div>
+
+    <!-- Tagline -->
+    <p class="mt-12 max-w-lg text-lg leading-relaxed text-white/90 drop-shadow-sm">
+      Real-time coastal insights for your next perfect shore day.
+      <span class="mt-2 block text-xs font-semibold uppercase tracking-[0.2em] italic opacity-70">For informational purposes only.</span>
+    </p>
+  </div>
+
+  <!-- Scroll Indicator -->
+  <div class="absolute bottom-12 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2 text-white/60 animate-bounce">
+    <span class="text-xs font-semibold tracking-[0.2em]">SCROLL</span>
+    <span class="material-symbols-outlined">expand_more</span>
+  </div>
+</section>
+
+<script>
+  // Search input focus micro-interaction
+  const searchInput = document.getElementById('search-input');
+  if (searchInput) {
+    searchInput.addEventListener('focus', function() {
+      this.parentElement.classList.add('scale-[1.02]');
+      this.parentElement.style.transition = 'transform 0.3s ease';
+    });
+    searchInput.addEventListener('blur', function() {
+      this.parentElement.classList.remove('scale-[1.02]');
+    });
+  }
+</script>

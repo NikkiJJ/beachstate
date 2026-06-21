@@ -1,1 +1,38 @@
-<div id="app"></div>
+<div class="w-full px-6 py-8">
+  <div class="max-w-7xl mx-auto">
+    <!-- Search Bar Section -->
+    <div class="mb-8">
+      <h1 class="mb-6 text-4xl font-bold text-[#001629] md:text-5xl">Search Results</h1>
+      
+      <div class="w-full max-w-2xl">
+        <%= form_with url: results_path, method: :get, local: true, class: "search-container" do |f| %>
+          <div class="absolute inset-y-0 left-6 flex items-center pointer-events-none text-slate-500/80">
+            <span class="material-symbols-outlined text-[28px]">search</span>
+          </div>
+          <%= f.text_field :search, 
+              class: "search-input", 
+              placeholder: "Search for a beach...",
+              value: params[:search],
+              id: "search-input-results" %>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Results Container -->
+    <div id="app" class="mt-8"></div>
+  </div>
+</div>
+
+<script>
+  // Search input focus micro-interaction
+  const searchInput = document.getElementById('search-input-results');
+  if (searchInput) {
+    searchInput.addEventListener('focus', function() {
+      this.parentElement.classList.add('scale-[1.02]');
+      this.parentElement.style.transition = 'transform 0.3s ease';
+    });
+    searchInput.addEventListener('blur', function() {
+      this.parentElement.classList.remove('scale-[1.02]');
+    });
+  }
+</script>

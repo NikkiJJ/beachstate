@@ -1,15 +1,33 @@
-/*
- * This is a manifest file that'll be compiled into application.css, which will include all the files
- * listed below.
- *
- * Any CSS (and SCSS, if configured) file within this directory, lib/assets/stylesheets, or any plugin's
- * vendor/assets/stylesheets directory can be referenced here using a relative path.
- *
- * You're free to add application-wide styles to this file and they'll appear at the bottom of the
- * compiled file so the styles you add here take precedence over styles defined in any other CSS
- * files in this directory. Styles in this file should be added after the last require_* statement.
- * It is generally better to create a new file per style scope.
- *
- *= require_tree .
- *= require_self
- */
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+/* Custom Styles */
+@import "typography.css";
+
+@layer components {
+  .glass-effect {
+    @apply backdrop-blur-md;
+    background: rgba(255, 255, 255, 0.7);
+  }
+
+  .glass-effect.scrolled {
+    background: rgba(255, 255, 255, 0.95);
+  }
+
+  .hero-gradient {
+    background: linear-gradient(to bottom, rgba(0, 22, 41, 0.2), rgba(0, 22, 41, 0.4));
+  }
+
+  .search-container {
+    @apply relative group;
+  }
+
+  .search-input {
+    @apply w-full pl-16 pr-8 py-6 rounded-full bg-white/90 backdrop-blur-md border-0 shadow-2xl text-body-lg font-body-lg text-primary focus:ring-4 focus:ring-secondary/20 transition-all outline-none;
+  }
+
+  .search-input::placeholder {
+    @apply text-outline-variant/70;
+  }
+}
